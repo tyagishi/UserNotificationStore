@@ -2,10 +2,19 @@ import XCTest
 @testable import UserNotificationStore
 
 final class UserNotificationStoreTests: XCTestCase {
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-        XCTAssertEqual(UserNotificationStore().text, "Hello, World!")
+    func test_UserNotifiacationStore_request() throws {
+        let sut = DummyUserNotificationStore()
+        XCTAssertNotNil(sut)
+        
+        // initially requested notification is zero
+        XCTAssertEqual(sut.requestNum, 0)
+
+        // request
+        sut.requestNotification(at: Date().advanced(by: 60*50), title: "New Notification", body: "notification body", categoryIdentifier: nil)
+        XCTAssertEqual(sut.requestNum, 1)
+
+        // cancel
+        sut.cancelNotification()
+        XCTAssertEqual(sut.requestNum, 0)
     }
 }
