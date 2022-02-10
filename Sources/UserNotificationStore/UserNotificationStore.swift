@@ -8,7 +8,7 @@
 import Foundation
 import UserNotifications
 
-protocol UserNotificationStoreProtocol: ObservableObject {
+public protocol UserNotificationStoreProtocol: ObservableObject {
     init()
     func requestAuthorization(options:UNAuthorizationOptions) async throws -> Bool
     func requestNotification(at date:Date, title: String, body: String, categoryIdentifier: String?)
@@ -17,33 +17,35 @@ protocol UserNotificationStoreProtocol: ObservableObject {
     var requestNum: Int { get }
 }
 
-final class DummyUserNotificationStore: UserNotificationStoreProtocol {
+public final class DummyUserNotificationStore: UserNotificationStoreProtocol {
     public var requestNum:Int = 0
 
-    required init() {}
-    func requestAuthorization(options:UNAuthorizationOptions) async throws -> Bool {
+    public required init() {}
+    public func requestAuthorization(options:UNAuthorizationOptions) async throws -> Bool {
         // always OK
         return true
     }
-    func requestNotification(at date:Date, title: String, body: String, categoryIdentifier: String?) {
+    public func requestNotification(at date:Date, title: String, body: String, categoryIdentifier: String?) {
         // record request
         requestNum += 1
     }
-    func cancelNotification() {
+    public func cancelNotification() {
         // clear num of requests
         requestNum = 0
     }
 }
 
-final class UserNotificationStore: UserNotificationStoreProtocol {
+public final class UserNotificationStore: UserNotificationStoreProtocol {
     var myNotificationIDs: Array<String> = Array()
 
-    func requestAuthorization(options:UNAuthorizationOptions = []) async throws -> Bool {
+    public init() {}
+    
+    public func requestAuthorization(options:UNAuthorizationOptions = []) async throws -> Bool {
         let result = try await UNUserNotificationCenter.current().requestAuthorization(options: options)
         return result
     }
     
-    func requestNotification(at date:Date, title: String, body: String, categoryIdentifier: String? = nil) {
+    public func requestNotification(at date:Date, title: String, body: String, categoryIdentifier: String? = nil) {
         let center = UNUserNotificationCenter.current()
         center.getNotificationSettings { settings in
             guard (settings.authorizationStatus == .authorized) ||
@@ -87,12 +89,12 @@ final class UserNotificationStore: UserNotificationStoreProtocol {
         }
     }
     
-    func cancelNotification() {
+    public func cancelNotification() {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: myNotificationIDs)
         myNotificationIDs.removeAll()
     }
     
-    var requestNum: Int {
+    public var requestNum: Int {
         return myNotificationIDs.count
     }
 }
